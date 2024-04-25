@@ -1,49 +1,49 @@
-public class MyLinkedList<E> implements MyList<E> {
-    private class MyNode {
-        E element;
-        MyNode next;
-        MyNode previous;
+import java.util.Arrays;
 
-        public MyNode(E element) {
-            this.element = element;
-        }
-    }
-
-    private MyNode head;
-    private MyNode tail;
+public class MyArrayList<E> implements MyList<E> {
+    private static final int DEFAULT_CAPACITY = 10;
+    private Object[] elements;
     private int size;
 
-    public MyLinkedList() {
-        this.head = null;
-        this.tail = null;
+    public MyArrayList() {
+        this.elements = new Object[DEFAULT_CAPACITY];
         this.size = 0;
     }
 
     @Override
     public void add(E element) {
-        MyNode newNode = new MyNode(element);
-        if (isEmpty()) {
-            head = newNode;
-            tail = newNode;
-        } else {
-            tail.next = newNode;
-            newNode.previous = tail;
-            tail = newNode;
+        ensureCapacity();
+        elements[size++] = element;
+    }
+
+    @Override
+    public void add(int index, E element) {
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException();
         }
+        ensureCapacity();
+        System.arraycopy(elements, index, elements, index + 1, size - index);
+        elements[index] = element;
         size++;
     }
 
     @Override
-    public void add(int index, E element) {}
-
-    @Override
     public E get(int index) {
-        return null;
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+        return (E) elements[index];
     }
 
     @Override
     public E remove(int index) {
-        return null;
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+        E removedElement = (E) elements[index];
+        System.arraycopy(elements, index + 1, elements, index, size - index - 1);
+        size--;
+        return removedElement;
     }
 
     @Override
@@ -58,131 +58,43 @@ public class MyLinkedList<E> implements MyList<E> {
 
     @Override
     public boolean contains(E element) {
-        MyNode current = head;
-        while (current != null) {
-            if (current.element.equals(element)) {
+        for (int i = 0; i < size; i++) {
+            if (elements[i].equals(element)) {
                 return true;
             }
-            current = current.next;
         }
         return false;
     }
 
     @Override
-    public Iterator<E> iterator() {
-        return null;
+    public java.util.Iterator<E> iterator() {
+        return new java.util.Iterator<E>() {
+            private int currentIndex = 0;
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex < size;
+            }
+
+            @Override
+            public E next() {
+                return (E) elements[currentIndex++];
+            }
+        };
     }
-}
 
-public class MyStack<E> {
-    private MyList<E> list;
-
-    public MyStack(MyList<E> list) {
-        this.list = list;
-    }
-
-    public void push(E element) {
-        list.add(element);
-    }
-
-    public E pop() {
-        if (list.isEmpty()) {
-            throw new EmptyStackException();
+    @Override
+    public void set(int index, E element) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
         }
-        return list.remove(list.size() - 1);
+        elements[index] = element;
     }
 
-    public E peek() {
-        if (list.isEmpty()) {
-            throw new EmptyStackException();
+    private void ensureCapacity() {
+        if (size == elements.length) {
+            int newCapacity = elements.length * 2;
+            elements = Arrays.copyOf(elements, newCapacity);
         }
-        return list.get(list.size() - 1);
     }
-
-    public boolean isEmpty() {
-        return list.isEmpty();
-    }
-
-    public int size() {
-        return list.size();
-    }
-}
-
-public class MyQueue<E> {
-    private MyList<E> list;
-
-    public MyQueue(MyList<E> list) {
-        this.list = list;
-    }
-
-    public void enqueue(E element) {
-        list.add(element);
-    }
-
-    public E dequeue() {
-        if (list.isEmpty()) {
-            throw new NoSuchElementException();
-        }
-        return list.remove(0);
-    }
-
-    public E peek() {
-        if (list.isEmpty()) {
-            throw new NoSuchElementException();
-        }
-        return list.get(0);
-    }
-
-    public boolean isEmpty() {
-        return list.isEmpty();
-    }
-
-    public int size() {
-        return list.size();
-    }
-}
-
-public class MyMinHeap<E extends Comparable<E>> {
-    private MyList<E> list;
-
-    public MyMinHeap(MyList<E> list) {
-        this.list = list;
-    }
-
-    public void insert(E element) {
-        list.add(element);
-        heapifyUp();
-    }
-
-    public E extractMin() {
-        if (list.isEmpty()) {
-            throw new NoSuchElementException();
-        }
-        E min = list.get(0);
-        E last = list.remove(list.size() - 1);
-        if (!list.isEmpty()) {
-            list.set(0, last);
-            heapifyDown();
-        }
-        return min;
-    }
-
-    public E getMin() {
-        if (list.isEmpty()) {
-            throw new NoSuchElementException();
-        }
-        return list.get(0);
-    }
-
-    public boolean isEmpty() {
-        return list.isEmpty();
-    }
-
-    public int size() {
-        return list.size();
-    }
-
-    private void heapifyUp() {}
-
-    private void heapifyDown() {}
 }
